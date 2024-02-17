@@ -1,4 +1,3 @@
-import sys
 from collections import UserDict
 
 class Field:
@@ -15,7 +14,7 @@ class Name(Field):
             raise ValueError("Invalide name format. Name must not be empty.")
     
     def is_valid(self):
-        return bool(str(self.value).strip())
+        return self.value.strip()
     
 class Phone(Field):
     def __init__(self,phone):
@@ -24,7 +23,7 @@ class Phone(Field):
             raise ValueError("Invalide phone format. Phone must be 10.")
     
     def is_valid(self):
-        return len(str(self.value)) == 10 and str(self.value).isdigit()
+        return len(self.value) == 10 and self.value.isdigit()
 
 class Record:
     def __init__(self, name):
@@ -35,19 +34,21 @@ class Record:
         self.phones.append(Phone(phone))
 
     def remove_phone(self,phone):
-        self.phones = [p for p in self.phones if str(p) != phone]
+        self.phones = [p for p in self.phones if p.value != phone]
 
     def edit_phone(self,old_phone,new_phone):
         for i, phone in enumerate(self.phones):
-            if str(phone) == old_phone:
+            if phone.value == old_phone:
                 self.phones[i] = Phone(new_phone)
-                break
+                return
+            else:
+                raise ValueError
     
     def find_phone(self, phone):
         for p in self.phones:
-            if str(p) == phone:
-                return str(p)
-        return "Not found"
+            if p.value == phone:
+                return p
+        return None
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
@@ -60,8 +61,8 @@ class AddressBook(UserDict):
         return self.data.get(name)
 
     def delete(self, name):
-        if name in self.data:
-            del self.data[name]
+        if not self.data.pop(name,None):
+            raise NameError
 
 # Створення нової адресної книги
 book = AddressBook()
